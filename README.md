@@ -1,4 +1,3 @@
 # zearches
 
-zearches is simply a spatial search engine, include octree, quadtree and rtree etc. it can be used to search the nearest points in a 2D or 3D space.
-it also provides simple collision detection, which can detect whether two objects intersect.
+Zearch is a simple spatial segmentation/search toolkit that includes octree, quadtree, rtree, and grids It can be used to implement AOI, such as vision management in game projects, and also provides simple collision detection
