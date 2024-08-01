@@ -13,7 +13,7 @@ const (
 
 // D2 .
 type D2 struct {
-	children [childrenCountD2]INode
+	children [childrenCountD2]*TreeNode
 }
 
 // NewD2 .
@@ -22,7 +22,7 @@ func NewD2() *D2 {
 }
 
 // Divide the node into 4 children and move entities to children.
-func (d *D2) Divide(parent INode, depth int) {
+func (d *D2) Divide(parent *TreeNode, depth int) {
 	/*
 	*   |1|2|
 	*   --.--
@@ -61,11 +61,11 @@ func (d *D2) ChildrenCount() int {
 }
 
 // GetChild returns the child at the specified index.
-func (d *D2) GetChild(index int) INode {
+func (d *D2) GetChild(index int) *TreeNode {
 	return d.children[index]
 }
 
 // Clear removes all children.
 func (d *D2) Clear() {
-	d.children = [childrenCountD2]INode{}
+	d.children = [childrenCountD2]*TreeNode{}
 }
