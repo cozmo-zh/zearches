@@ -21,7 +21,7 @@ type TreeNode struct {
 	bound       bounds.Bound            // Spatial boundaries of the node.
 	entityList  *list.List              // List of entities in the node.
 	entityIndex map[int64]*list.Element // Map of entity IDs to their list elements.
-	parent      INode                   // Parent node.
+	parent      *TreeNode               // Parent node.
 	children    IChildren
 }
 
@@ -34,7 +34,7 @@ type TreeNode struct {
 //
 // Returns:
 // - A pointer to the newly created TreeNode.
-func NewTreeNode(dim consts.Dim, parent INode, bound bounds.Bound, depth, maxDepth, capacity int) (*TreeNode, error) {
+func NewTreeNode(dim consts.Dim, parent *TreeNode, bound bounds.Bound, depth, maxDepth, capacity int) (*TreeNode, error) {
 	var children IChildren
 	switch dim {
 	case consts.Dim2:
@@ -298,7 +298,7 @@ func (n *TreeNode) Capacity() int {
 	return n.capacity
 }
 
-func (n *TreeNode) Parent() INode {
+func (n *TreeNode) Parent() *TreeNode {
 	return n.parent
 }
 

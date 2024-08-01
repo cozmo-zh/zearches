@@ -13,7 +13,7 @@ const (
 
 // D3 .
 type D3 struct {
-	children [childrenCountD3]INode
+	children [childrenCountD3]*TreeNode
 }
 
 // NewD3 .
@@ -22,7 +22,7 @@ func NewD3() *D3 {
 }
 
 // Divide the node into 8 children and move entities to children.
-func (d *D3) Divide(parent INode, depth int) {
+func (d *D3) Divide(parent *TreeNode, depth int) {
 	/*   3____7
 	*  2/___6/|
 	*  | 1__|_5
@@ -80,11 +80,11 @@ func (d *D3) ChildrenCount() int {
 }
 
 // GetChild return the child at the given index.
-func (d *D3) GetChild(index int) INode {
+func (d *D3) GetChild(index int) *TreeNode {
 	return d.children[index]
 }
 
 // Clear the children.
 func (d *D3) Clear() {
-	d.children = [childrenCountD3]INode{}
+	d.children = [childrenCountD3]*TreeNode{}
 }
