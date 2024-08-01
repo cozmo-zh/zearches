@@ -248,18 +248,18 @@ func (n *TreeNode) FindEntities(center geo.Vec3Int, radius float32, filters ...f
 	cMin := geo.NewVec3Int(center.X()-int32(radius), center.Y()-int32(radius), center.Z()-int32(radius))
 	cMax := geo.NewVec3Int(center.X()+int32(radius), center.Y()+int32(radius), center.Z()+int32(radius))
 	cBound := bounds.NewBound(cMin, cMax)
-	return n.FindEntitiesInBound(cBound, filters...)
+	return n.FindEntitiesInBound(cBound, radius, filters...)
 }
 
 // FindEntitiesInBound finds entities within a bound.
-func (n *TreeNode) FindEntitiesInBound(bound bounds.Bound, filters ...func(entity siface.ISpatial) bool) []siface.ISpatial {
+func (n *TreeNode) FindEntitiesInBound(bound bounds.Bound, radius float32, filters ...func(entity siface.ISpatial) bool) []siface.ISpatial {
 	// search entities
 	ret := make([]siface.ISpatial, 0)
 	if n.Intersects(bound) {
 		if n.IsLeaf() {
 			for e := n.entityList.Front(); e != nil; e = e.Next() {
 				spatial := e.Value.(siface.ISpatial)
-				if util.WithinDistance3D(spatial.GetLocation().ToFloat32(), bound.Center.ToFloat32(), bound.Length) {
+				if util.WithinDistance3D(spatial.GetLocation().ToFloat32(), bound.Center.ToFloat32(), radius) {
 					if len(filters) == 0 {
 						ret = append(ret, spatial)
 					} else {
@@ -279,33 +279,39 @@ func (n *TreeNode) FindEntitiesInBound(bound bounds.Bound, filters ...func(entit
 				if child == nil {
 					continue
 				}
-				ret = append(ret, child.FindEntitiesInBound(bound, filters...)...)
+				ret = append(ret, child.FindEntitiesInBound(bound, radius, filters...)...)
 			}
 		}
 	}
 	return ret
 }
 
+// Bound returns the spatial boundaries of the node.
 func (n *TreeNode) Bound() bounds.Bound {
 	return n.bound
 }
 
+// MaxDepth returns the maximum depth of the tree.
 func (n *TreeNode) MaxDepth() int {
 	return n.maxDepth
 }
 
+// Capacity returns the maximum number of entities the node can hold.
 func (n *TreeNode) Capacity() int {
 	return n.capacity
 }
 
+// Parent returns the parent node.
 func (n *TreeNode) Parent() *TreeNode {
 	return n.parent
 }
 
+// Size returns the number of entities in the node.
 func (n *TreeNode) Size() int {
 	return n.entityList.Len()
 }
 
+// Children returns the children of the node.
 func (n *TreeNode) Children() IChildren {
 	return n.children
 }

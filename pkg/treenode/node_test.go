@@ -161,7 +161,7 @@ func TestFindEntitiesReturnsEntitiesWithinRadius(t *testing.T) {
 	b := bounds.NewBound(geo.NewVec3Int(0, 0, 0), geo.NewVec3Int(10, 10, 10))
 	node, _ := NewTreeNode(consts.Dim3, nil, b, 0, maxDepth, capacity)
 
-	spatial1 := createMockSpatial(1, 2, 2, 2)
+	spatial1 := createMockSpatial(1, 4, 4, 4)
 	spatial2 := createMockSpatial(2, 8, 8, 8)
 	spatial3 := createMockSpatial(3, 5, 5, 5)
 	node.Add(spatial1)
@@ -173,6 +173,6 @@ func TestFindEntitiesReturnsEntitiesWithinRadius(t *testing.T) {
 	entities := node.FindEntities(center, radius)
 
 	assert.Contains(t, entities, spatial1)
-	assert.Contains(t, entities, spatial2)
+	assert.NotContains(t, entities, spatial2)
 	assert.Contains(t, entities, spatial3)
 }
