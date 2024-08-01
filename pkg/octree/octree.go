@@ -15,9 +15,13 @@ type Octree struct {
 }
 
 // NewOctree .
-func NewOctree(dim consts.Dim, bound bounds.Bound, maxDepth int, capacity int) *Octree {
-	return &Octree{
-		root: treenode.NewTreeNode(dim, nil, bound, 0, maxDepth, capacity),
+func NewOctree(dim consts.Dim, bound bounds.Bound, maxDepth int, capacity int) (*Octree, error) {
+	if root, err := treenode.NewTreeNode(dim, nil, bound, 0, maxDepth, capacity); err != nil {
+		return nil, err
+	} else {
+		return &Octree{
+			root: root,
+		}, nil
 	}
 }
 

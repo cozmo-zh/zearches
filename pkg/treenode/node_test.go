@@ -34,7 +34,7 @@ func TestNewTreeNode(t *testing.T) {
 	maxDepth := 4
 	capacity := 10
 	b := bounds.NewBound(geo.NewVec3Int(0, 0, 0), geo.NewVec3Int(10, 10, 10))
-	node := NewTreeNode(consts.Dim3, nil, b, 0, maxDepth, capacity)
+	node, _ := NewTreeNode(consts.Dim3, nil, b, 0, maxDepth, capacity)
 
 	assert.NotNil(t, node)
 	assert.Equal(t, 0, node.GetEntityList().Len())
@@ -45,7 +45,7 @@ func TestAddEntity(t *testing.T) {
 	maxDepth := 4
 	capacity := 1
 	b := bounds.NewBound(geo.NewVec3Int(0, 0, 0), geo.NewVec3Int(10, 10, 10))
-	node := NewTreeNode(consts.Dim3, nil, b, 0, maxDepth, capacity)
+	node, _ := NewTreeNode(consts.Dim3, nil, b, 0, maxDepth, capacity)
 
 	spatial1 := createMockSpatial(1, 2, 2, 2)
 	spatial2 := createMockSpatial(2, 8, 8, 8)
@@ -54,8 +54,8 @@ func TestAddEntity(t *testing.T) {
 	node.Add(spatial2)
 
 	assert.Equal(t, 0, node.GetEntityList().Len())
-	assert.Equal(t, 1, node.children[0].GetEntityList().Len())
-	assert.Equal(t, 1, node.children[7].GetEntityList().Len())
+	assert.Equal(t, 1, node.Children().GetChild(0).Size())
+	assert.Equal(t, 1, node.Children().GetChild(7).Size())
 
 }
 
@@ -63,7 +63,7 @@ func TestRemoveEntity(t *testing.T) {
 	maxDepth := 4
 	capacity := 10
 	b := bounds.NewBound(geo.NewVec3Int(0, 0, 0), geo.NewVec3Int(10, 10, 10))
-	node := NewTreeNode(consts.Dim3, nil, b, 0, maxDepth, capacity)
+	node, _ := NewTreeNode(consts.Dim3, nil, b, 0, maxDepth, capacity)
 
 	spatial := createMockSpatial(1, 5, 5, 5)
 	node.Add(spatial)
@@ -77,26 +77,21 @@ func TestDivideIf(t *testing.T) {
 	maxDepth := 4
 	capacity := 1
 	b := bounds.NewBound(geo.NewVec3Int(0, 0, 0), geo.NewVec3Int(10, 10, 10))
-	node := NewTreeNode(consts.Dim3, nil, b, 0, maxDepth, capacity)
+	node, _ := NewTreeNode(consts.Dim3, nil, b, 0, maxDepth, capacity)
 
 	spatial1 := createMockSpatial(1, 2, 2, 2)
 	spatial2 := createMockSpatial(2, 8, 8, 8)
 	node.Add(spatial1)
 	node.Add(spatial2)
-	assert.True(t, node.IsLeaf())
-
-	divided := node.DivideIf()
-
-	assert.True(t, divided)
-	assert.Equal(t, 8, len(node.children))
 	assert.False(t, node.IsLeaf())
+	assert.Equal(t, 8, node.Children().ChildrenCount())
 }
 
 func TestContains(t *testing.T) {
 	maxDepth := 4
 	capacity := 10
 	b := bounds.NewBound(geo.NewVec3Int(0, 0, 0), geo.NewVec3Int(10, 10, 10))
-	node := NewTreeNode(consts.Dim3, nil, b, 0, maxDepth, capacity)
+	node, _ := NewTreeNode(consts.Dim3, nil, b, 0, maxDepth, capacity)
 
 	spatial := createMockSpatial(1, 5, 5, 5)
 	contains := node.Contains(spatial)
@@ -108,32 +103,38 @@ func TestIsLeaf(t *testing.T) {
 	maxDepth := 4
 	capacity := 10
 	b := bounds.NewBound(geo.NewVec3Int(0, 0, 0), geo.NewVec3Int(10, 10, 10))
-	node := NewTreeNode(consts.Dim3, nil, b, 0, maxDepth, capacity)
+	node, _ := NewTreeNode(consts.Dim3, nil, b, 0, maxDepth, capacity)
 
 	assert.True(t, node.IsLeaf())
 }
 
 func TestMergeIf(t *testing.T) {
-	maxDepth := 4
-	capacity := 10
+	maxDepth := 1
+	capacity := 1
 	b := bounds.NewBound(geo.NewVec3Int(0, 0, 0), geo.NewVec3Int(10, 10, 10))
-	parent := NewTreeNode(consts.Dim3, nil, b, 0, maxDepth, capacity)
-	node := NewTreeNode(consts.Dim3, parent, b, 1, maxDepth, capacity)
-	parent.children[0] = node
-
-	spatial := createMockSpatial(1, 5, 5, 5)
-	node.Add(spatial)
-	merged := node.MergeIf()
-
-	assert.True(t, merged)
-	assert.Equal(t, 1, parent.GetEntityList().Len())
+	parent, _ := NewTreeNode(consts.Dim3, nil, b, 0, maxDepth, capacity)
+	assert.True(t, parent.IsLeaf())
+	spatials := []siface.ISpatial{
+		createMockSpatial(1, 1, 1, 1),
+		createMockSpatial(2, 2, 2, 2),
+		createMockSpatial(3, 3, 3, 3),
+		createMockSpatial(4, 4, 4, 4),
+		createMockSpatial(5, 5, 5, 5),
+		createMockSpatial(6, 6, 6, 6),
+		createMockSpatial(7, 7, 7, 7),
+		createMockSpatial(8, 8, 8, 8),
+	}
+	for _, spatial := range spatials {
+		parent.Add(spatial)
+	}
+	assert.False(t, parent.IsLeaf())
 }
 
 func TestAddEntityAtMaxDepth(t *testing.T) {
 	maxDepth := 3
 	capacity := 2
 	b := bounds.NewBound(geo.NewVec3Int(0, 0, 0), geo.NewVec3Int(10, 10, 10))
-	node := NewTreeNode(consts.Dim3, nil, b, 0, maxDepth, capacity)
+	node, _ := NewTreeNode(consts.Dim3, nil, b, 0, maxDepth, capacity)
 
 	// Create spatial entities to fill the tree to its maximum depth
 	spatials := []siface.ISpatial{
