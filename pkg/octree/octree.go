@@ -2,7 +2,7 @@
 package octree
 
 import (
-	"github.com/cozmo-zh/zearches/pkg/bound"
+	"github.com/cozmo-zh/zearches/pkg/bounds"
 	"github.com/cozmo-zh/zearches/pkg/consts"
 	"github.com/cozmo-zh/zearches/pkg/geo"
 	"github.com/cozmo-zh/zearches/pkg/siface"
@@ -15,9 +15,9 @@ type Octree struct {
 }
 
 // NewOctree .
-func NewOctree(dim consts.Dim, bound bound.Bound, maxDepth int, capacity int) *Octree {
+func NewOctree(dim consts.Dim, bound bounds.Bound, maxDepth int, capacity int) *Octree {
 	return &Octree{
-		root: treenode.NewTreeNode(dim, nil, bound, 0, &maxDepth, &capacity),
+		root: treenode.NewTreeNode(dim, nil, bound, 0, maxDepth, capacity),
 	}
 }
 
