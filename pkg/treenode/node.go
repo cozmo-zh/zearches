@@ -3,6 +3,7 @@ package treenode
 
 import (
 	"container/list"
+	"fmt"
 	"github.com/cozmo-zh/zearches/pkg/bounds"
 	"github.com/cozmo-zh/zearches/pkg/consts"
 	"github.com/cozmo-zh/zearches/pkg/geo"
@@ -18,10 +19,10 @@ type TreeNode struct {
 	maxDepth    int                     // Maximum depth of the tree.
 	capacity    int                     // Maximum number of entities the node can hold.
 	bound       bounds.Bound            // Spatial boundaries of the node.
-	children    [8]*TreeNode            // Child nodes.
 	entityList  *list.List              // List of entities in the node.
 	entityIndex map[int64]*list.Element // Map of entity IDs to their list elements.
-	parent      *TreeNode               // Parent node.
+	parent      INode                   // Parent node.
+	children    IChildren
 }
 
 // NewTreeNode creates a new tree node.
@@ -33,7 +34,16 @@ type TreeNode struct {
 //
 // Returns:
 // - A pointer to the newly created TreeNode.
-func NewTreeNode(dim consts.Dim, parent *TreeNode, bound bounds.Bound, depth, maxDepth, capacity int) *TreeNode {
+func NewTreeNode(dim consts.Dim, parent INode, bound bounds.Bound, depth, maxDepth, capacity int) (*TreeNode, error) {
+	var children IChildren
+	switch dim {
+	case consts.Dim2:
+		children = NewD2()
+	case consts.Dim3:
+		children = NewD3()
+	default:
+		return nil, fmt.Errorf("unsupported dimension: %v", dim)
+	}
 	return &TreeNode{
 		parent:      parent,
 		depth:       depth,
@@ -42,7 +52,8 @@ func NewTreeNode(dim consts.Dim, parent *TreeNode, bound bounds.Bound, depth, ma
 		bound:       bound,
 		entityList:  list.New(),
 		entityIndex: make(map[int64]*list.Element),
-	}
+		children:    children,
+	}, nil
 }
 
 // Add adds a spatial entity to the node.
@@ -61,8 +72,8 @@ func (n *TreeNode) Add(spatial siface.ISpatial) bool {
 		_n.entityIndex[spatial.GetID()] = e
 	}
 	add2Children := func(_n *TreeNode, spatial siface.ISpatial) bool {
-		for i := 0; i < 8; i++ {
-			if _n.children[i].Add(spatial) {
+		for i := 0; i < n.children.ChildrenCount(); i++ {
+			if _n.children.GetChild(i).Add(spatial) {
 				return true
 			}
 		}
@@ -106,8 +117,8 @@ func (n *TreeNode) Remove(spatialId int64, merge ...bool) bool {
 		}
 		return false
 	} else {
-		for i := 0; i < 8; i++ {
-			if n.children[i].Remove(spatialId, merge...) {
+		for i := 0; i < n.children.ChildrenCount(); i++ {
+			if n.children.GetChild(i).Remove(spatialId, merge...) {
 				return true
 			}
 		}
@@ -129,6 +140,10 @@ func (n *TreeNode) Clear() {
 	n.entityList.Init()
 }
 
+func (n *TreeNode) ClearChildren() {
+	n.children.Clear()
+}
+
 // DivideIf divides the node into 8 children if the number of entities exceeds the capacity.
 // if the depth of the node exceeds the maximum depth, the node will not be divided.
 //
@@ -142,58 +157,14 @@ func (n *TreeNode) DivideIf() bool {
 	if n.entityList.Len() < n.capacity {
 		return false
 	}
-	// Divide the node into 8 children and move entities to children.
-	// Divide first.
-	min0 := geo.NewVec3Int(n.bound.Min.X(), n.bound.Min.Y(), n.bound.Min.Z())
-	max0 := geo.NewVec3Int(n.bound.Center.X(), n.bound.Center.Y(), n.bound.Center.Z())
-	bound0 := bounds.NewBound(min0, max0)
-
-	min1 := geo.NewVec3Int(n.bound.Min.X(), n.bound.Min.Y(), n.bound.Center.Z())
-	max1 := geo.NewVec3Int(n.bound.Center.X(), n.bound.Center.Y(), n.bound.Max.Z())
-	bound1 := bounds.NewBound(min1, max1)
-
-	min2 := geo.NewVec3Int(n.bound.Min.X(), n.bound.Center.Y(), n.bound.Min.Z())
-	max2 := geo.NewVec3Int(n.bound.Center.X(), n.bound.Max.Y(), n.bound.Center.Z())
-	bound2 := bounds.NewBound(min2, max2)
-
-	min3 := geo.NewVec3Int(n.bound.Min.X(), n.bound.Center.Y(), n.bound.Center.Z())
-	max3 := geo.NewVec3Int(n.bound.Center.X(), n.bound.Max.Y(), n.bound.Max.Z())
-	bound3 := bounds.NewBound(min3, max3)
-
-	min4 := geo.NewVec3Int(n.bound.Center.X(), n.bound.Min.Y(), n.bound.Min.Z())
-	max4 := geo.NewVec3Int(n.bound.Max.X(), n.bound.Center.Y(), n.bound.Center.Z())
-	bound4 := bounds.NewBound(min4, max4)
-
-	min5 := geo.NewVec3Int(n.bound.Center.X(), n.bound.Min.Y(), n.bound.Center.Z())
-	max5 := geo.NewVec3Int(n.bound.Max.X(), n.bound.Center.Y(), n.bound.Max.Z())
-	bound5 := bounds.NewBound(min5, max5)
-
-	min6 := geo.NewVec3Int(n.bound.Center.X(), n.bound.Center.Y(), n.bound.Min.Z())
-	max6 := geo.NewVec3Int(n.bound.Max.X(), n.bound.Max.Y(), n.bound.Center.Z())
-	bound6 := bounds.NewBound(min6, max6)
-
-	min7 := geo.NewVec3Int(n.bound.Center.X(), n.bound.Center.Y(), n.bound.Center.Z())
-	max7 := geo.NewVec3Int(n.bound.Max.X(), n.bound.Max.Y(), n.bound.Max.Z())
-	bound7 := bounds.NewBound(min7, max7)
-
-	// Increase the depth.
-	depth := n.depth + 1
-	// Create children.
-	n.children[0] = NewTreeNode(consts.Dim3, n, bound0, depth, n.maxDepth, n.capacity)
-	n.children[1] = NewTreeNode(consts.Dim3, n, bound1, depth, n.maxDepth, n.capacity)
-	n.children[2] = NewTreeNode(consts.Dim3, n, bound2, depth, n.maxDepth, n.capacity)
-	n.children[3] = NewTreeNode(consts.Dim3, n, bound3, depth, n.maxDepth, n.capacity)
-	n.children[4] = NewTreeNode(consts.Dim3, n, bound4, depth, n.maxDepth, n.capacity)
-	n.children[5] = NewTreeNode(consts.Dim3, n, bound5, depth, n.maxDepth, n.capacity)
-	n.children[6] = NewTreeNode(consts.Dim3, n, bound6, depth, n.maxDepth, n.capacity)
-	n.children[7] = NewTreeNode(consts.Dim3, n, bound7, depth, n.maxDepth, n.capacity)
-
+	n.children.Divide(n, n.depth+1)
 	// Move entities to children.
 	for e := n.entityList.Front(); e != nil; e = e.Next() {
 		spatial := e.Value.(siface.ISpatial)
-		for i := 0; i < 8; i++ {
-			if n.children[i].Contains(spatial) {
-				n.children[i].Add(spatial)
+		for i := 0; i < n.children.ChildrenCount(); i++ {
+			child := n.children.GetChild(i)
+			if child.Contains(spatial) {
+				child.Add(spatial)
 				break
 			}
 		}
@@ -231,8 +202,8 @@ func (n *TreeNode) Intersects(bound bounds.Bound) bool {
 
 // IsLeaf checks if the node is a leaf node.
 func (n *TreeNode) IsLeaf() bool {
-	for _, child := range n.children {
-		if child != nil {
+	for i := 0; i < n.children.ChildrenCount(); i++ {
+		if n.children.GetChild(i) != nil {
 			return false
 		}
 	}
@@ -247,25 +218,26 @@ func (n *TreeNode) MergeIf() bool {
 	}
 	// check other siblings
 	count := 0
-	for _, sibling := range n.parent.children {
-		if sibling != nil {
-			count += sibling.entityList.Len()
+	for i := 0; i < n.parent.Children().ChildrenCount(); i++ {
+		child := n.parent.Children().GetChild(i)
+		if !child.IsLeaf() {
+			return false
 		}
+		count += child.Size()
 	}
 	if count >= n.capacity {
 		return false
 	}
 	// Merge the node with its children
-	for _, sibling := range n.parent.children {
-		if sibling != nil {
-			for e := sibling.entityList.Front(); e != nil; e = e.Next() {
-				spatial := e.Value.(siface.ISpatial)
-				n.parent.Add(spatial)
-			}
-			sibling.Clear()
+	for i := 0; i < n.children.ChildrenCount(); i++ {
+		child := n.children.GetChild(i)
+		for e := child.GetEntityList().Front(); e != nil; e = e.Next() {
+			spatial := e.Value.(siface.ISpatial)
+			n.Add(spatial)
 		}
+		child.Clear()
 	}
-	n.parent.children = [8]*TreeNode{}
+	n.ClearChildren()
 	return true
 }
 
@@ -302,7 +274,11 @@ func (n *TreeNode) FindEntitiesInBound(bound bounds.Bound, filters ...func(entit
 			}
 		} else {
 			// check children
-			for _, child := range n.children {
+			for i := 0; i < n.children.ChildrenCount(); i++ {
+				child := n.children.GetChild(i)
+				if child == nil {
+					continue
+				}
 				ret = append(ret, child.FindEntitiesInBound(bound, filters...)...)
 			}
 		}
@@ -312,4 +288,24 @@ func (n *TreeNode) FindEntitiesInBound(bound bounds.Bound, filters ...func(entit
 
 func (n *TreeNode) Bound() bounds.Bound {
 	return n.bound
+}
+
+func (n *TreeNode) MaxDepth() int {
+	return n.maxDepth
+}
+
+func (n *TreeNode) Capacity() int {
+	return n.capacity
+}
+
+func (n *TreeNode) Parent() INode {
+	return n.parent
+}
+
+func (n *TreeNode) Size() int {
+	return n.entityList.Len()
+}
+
+func (n *TreeNode) Children() IChildren {
+	return n.children
 }
