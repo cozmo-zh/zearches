@@ -1,1 +1,1 @@
-These packages could be extracted into standalone public libraries if they are useful.
+These packages could be refactored into separate public libraries if they are useful.
