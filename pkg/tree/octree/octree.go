@@ -6,29 +6,9 @@ import (
 	"github.com/cozmo-zh/zearches/pkg/consts"
 	"github.com/cozmo-zh/zearches/pkg/geo"
 	"github.com/cozmo-zh/zearches/pkg/siface"
-	"github.com/cozmo-zh/zearches/pkg/treenode"
+	"github.com/cozmo-zh/zearches/pkg/tree"
+	"github.com/cozmo-zh/zearches/pkg/tree/treenode"
 )
-
-// Optional is a function type used to configure optional parameters for the Octree.
-type Optional func(o *Octree)
-
-// WithScale sets a custom scale function for the Octree.
-// The scale function converts a float32 slice to a geo.Vec3Int.
-// For example, if you want to convert the float32 slice to a Vec3Int by dividing each element by 10,
-// like 100.0, 100.0, 100.0 -> 10, 10, 10
-func WithScale(f func(v []float32) geo.Vec3Int) Optional {
-	return func(o *Octree) {
-		o.scale = f
-	}
-}
-
-// WithMergeIf sets the mergeIf field of the Octree.
-// If you want to merge the node when removing an entity, you can set merge to true.
-func WithMergeIf(merge bool) Optional {
-	return func(o *Octree) {
-		o.mergeIf = merge
-	}
-}
 
 // Octree represents an octree data structure.
 type Octree struct {
@@ -37,13 +17,21 @@ type Octree struct {
 	mergeIf bool                          // Flag to determine if nodes should be merged when removing an entity.
 }
 
+func (o *Octree) SetScale(f func(v []float32) geo.Vec3Int) {
+	o.scale = f
+}
+
+func (o *Octree) SetMergeIf(merge bool) {
+	o.mergeIf = merge
+}
+
 // NewOctree creates a new Octree.
 // Parameters:
 // - bound: the spatial boundaries of the tree.
 // - maxDepth: the maximum depth of the tree.
 // - capacity: the maximum number of entities that a node can hold.
 // - optional: variadic optional parameters to configure the octree.
-func NewOctree(bound bounds.Bound, maxDepth int, capacity int, optional ...Optional) (*Octree, error) {
+func NewOctree(bound bounds.Bound, maxDepth int, capacity int, optional ...tree.Optional) (*Octree, error) {
 	if root, err := treenode.NewTreeNode(consts.Dim3, nil, bound, 0, maxDepth, capacity); err != nil {
 		return nil, err
 	} else {
