@@ -20,32 +20,27 @@ go get -u github.com/cozmo-zh/zearches
 
 ```go
 func main() {
-	// create an octree
-	otree, _ := zearches.CreateOctree(
-		bounds.NewBound(geo.NewVec3Int(0, 0, 0), geo.NewVec3Int(100, 100, 100)), // bound, required
-		1,                          // maxDepth, required
-		1,                          // capacity, required
-		zearches.WithMergeIf(true), // Flag to determine if nodes should be merged when removing an entity , optional, default is false
-		zearches.WithScale(func(v []float32) geo.Vec3Int {
-			return geo.NewVec3Int(int32(v[0]), int32(v[1]), int32(v[2]))
-		}), // Function to scale float32 slice to geo.Vec3Int , optional, default is identity function
-	)
+// create an octree
+otree, _ := zearches.CreateOctree(
+bounds.NewBound(geo.NewVec3Int(0, 0, 0), geo.NewVec3Int(100, 100, 100)), // bound, required
+1,                          // maxDepth, required
+1,                          // capacity, required
+zearches.WithMergeIf(true), // Flag to determine if nodes should be merged when removing an entity , optional, default is false
+zearches.WithScale(func(v []float32) geo.Vec3Int {
+return geo.NewVec3Int(int32(v[0]), int32(v[1]), int32(v[2]))
+}), // Function to scale float32 slice to geo.Vec3Int , optional, default is identity function
+)
 
-	otree.GetSurroundingEntities([]float32{1, 1, 1}, 10, func(entity siface.ISpatial) bool {
-		return entity.GetID() == 999
-	})
+otree.GetSurroundingEntities([]float32{1, 1, 1}, 10, func(entity siface.ISpatial) bool {
+return entity.GetID() == 999
+})
 
-	// create a quadtree
-	qtree, _ := zearches.CreateQuadtree(
-		bounds.NewBound(geo.NewVec3Int(0, 0, 0), geo.NewVec3Int(100, 100, 100)), // bound, required
-		1,                          // maxDepth, required
-		1,                          // capacity, required
-		zearches.WithMergeIf(true), // Flag to determine if nodes should be merged when removing an entity , optional, default is false
-		zearches.WithScale(func(v []float32) geo.Vec3Int {
-			return geo.NewVec3Int(int32(v[0]), int32(v[1]), int32(v[2]))
-		}), // Function to scale float32 slice to geo.Vec2Int , optional, default is identity function
-	)
-	qtree.Remove(999)
+// create a quadtree
+qtree, _ := zearches.CreateQuadtree(
+bounds.NewBound(geo.NewVec3Int(0, 0, 0), geo.NewVec3Int(100, 100, 100)), // bound, required
+1, // maxDepth, required
+1, // capacity, required
+)
+qtree.Remove(999)
 }
-
 ```
