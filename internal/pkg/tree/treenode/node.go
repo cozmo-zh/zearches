@@ -4,11 +4,11 @@ package treenode
 import (
 	"container/list"
 	"fmt"
+	"github.com/cozmo-zh/zearches/consts"
 	"github.com/cozmo-zh/zearches/pkg/bounds"
-	"github.com/cozmo-zh/zearches/pkg/consts"
 	"github.com/cozmo-zh/zearches/pkg/geo"
 	"github.com/cozmo-zh/zearches/pkg/siface"
-	"github.com/cozmo-zh/zearches/pkg/util"
+	"github.com/cozmo-zh/zearches/util"
 )
 
 // TreeNode is a node in the tree.

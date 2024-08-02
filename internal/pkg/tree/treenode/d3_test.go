@@ -2,8 +2,8 @@
 package treenode
 
 import (
+	"github.com/cozmo-zh/zearches/consts"
 	"github.com/cozmo-zh/zearches/pkg/bounds"
-	"github.com/cozmo-zh/zearches/pkg/consts"
 	"github.com/cozmo-zh/zearches/pkg/geo"
 	"github.com/stretchr/testify/assert"
 	"testing"

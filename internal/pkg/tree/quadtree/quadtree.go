@@ -2,12 +2,12 @@
 package quadtree
 
 import (
+	"github.com/cozmo-zh/zearches/consts"
+	"github.com/cozmo-zh/zearches/internal/pkg/tree"
+	"github.com/cozmo-zh/zearches/internal/pkg/tree/treenode"
 	"github.com/cozmo-zh/zearches/pkg/bounds"
-	"github.com/cozmo-zh/zearches/pkg/consts"
 	"github.com/cozmo-zh/zearches/pkg/geo"
 	"github.com/cozmo-zh/zearches/pkg/siface"
-	"github.com/cozmo-zh/zearches/pkg/tree"
-	"github.com/cozmo-zh/zearches/pkg/tree/treenode"
 )
 
 // QuadTree represents a quadtree data structure.
