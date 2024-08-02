@@ -1,7 +1,7 @@
 package octree
 
 import (
-	"github.com/cozmo-zh/zearches/pkg/tree"
+	"github.com/cozmo-zh/zearches/internal/pkg/tree"
 	"testing"
 
 	"github.com/cozmo-zh/zearches/pkg/bounds"
