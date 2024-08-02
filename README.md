@@ -12,7 +12,7 @@ Zearches is a simple spatial segmentation/search toolkit that includes Octree, Q
 
 ## Installation
 
-```go
+```bash
 go get -u github.com/cozmo-zh/zearches
 ```
 
