@@ -8,3 +8,15 @@ Zearches is a simple spatial segmentation/search toolkit that includes Octree, Q
 ## quadtree
 
 ![quadtree](draws/quadtree.png)
+
+
+## Installation
+
+```go
+go get -u github.com/cozmo-zh/zearches
+```
+
+## Usage
+
+```go
+```
