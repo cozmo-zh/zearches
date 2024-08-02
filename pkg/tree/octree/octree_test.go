@@ -1,6 +1,7 @@
 package octree
 
 import (
+	"github.com/cozmo-zh/zearches/pkg/tree"
 	"testing"
 
 	"github.com/cozmo-zh/zearches/pkg/bounds"
@@ -35,8 +36,8 @@ func TestOctree_creation(t *testing.T) {
 		bound,
 		1,
 		1,
-		WithMergeIf(false),
-		WithScale(func(v []float32) geo.Vec3Int {
+		tree.WithMergeIf(false),
+		tree.WithScale(func(v []float32) geo.Vec3Int {
 			return geo.NewVec3Int(int32(v[0])+1, int32(v[1])+1, int32(v[2])+1)
 		},
 		))
