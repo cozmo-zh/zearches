@@ -1,1 +1,1 @@
-These packages could theoretically be extracted into standalone public packages if they provide utility.
+These packages could be extracted into standalone public libraries if they are useful.
