@@ -60,8 +60,8 @@ func TestAddEntity(t *testing.T) {
 }
 
 func TestRemoveEntity(t *testing.T) {
-	maxDepth := 4
-	capacity := 10
+	maxDepth := 2
+	capacity := 1
 	b := bounds.NewBound(geo.NewVec3Int(0, 0, 0), geo.NewVec3Int(10, 10, 10))
 	node, _ := NewTreeNode(consts.Dim3, nil, b, 0, maxDepth, capacity)
 
@@ -109,8 +109,8 @@ func TestIsLeaf(t *testing.T) {
 }
 
 func TestMergeIf(t *testing.T) {
-	maxDepth := 1
-	capacity := 1
+	maxDepth := 2
+	capacity := 2
 	b := bounds.NewBound(geo.NewVec3Int(0, 0, 0), geo.NewVec3Int(10, 10, 10))
 	parent, _ := NewTreeNode(consts.Dim3, nil, b, 0, maxDepth, capacity)
 	assert.True(t, parent.IsLeaf())
@@ -128,6 +128,10 @@ func TestMergeIf(t *testing.T) {
 		parent.Add(spatial)
 	}
 	assert.False(t, parent.IsLeaf())
+	for _, spatial := range spatials {
+		parent.Remove(spatial.GetID(), true)
+	}
+	assert.True(t, parent.IsLeaf())
 }
 
 func TestAddEntityAtMaxDepth(t *testing.T) {
