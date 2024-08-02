@@ -5,6 +5,11 @@
 
 Zearches is a simple spatial segmentation/search toolkit that includes Octree, Quadtree, Rtree, and Grid-Based. It can be used to implement AOI, such as vision management in game projects, and also provides simple collision detection.
 
+## Status
+
+**This project is currently under development and is in an unstable state. Use with caution as features and functionality are subject to change.**
+
+
 ## octree
 
 ![octree](draws/octree1.png) 
