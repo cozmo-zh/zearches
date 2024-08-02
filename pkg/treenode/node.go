@@ -44,6 +44,12 @@ func NewTreeNode(dim consts.Dim, parent *TreeNode, bound bounds.Bound, depth, ma
 	default:
 		return nil, fmt.Errorf("unsupported dimension: %v", dim)
 	}
+	if maxDepth < 1 {
+		return nil, fmt.Errorf("maxDepth should be greater than 0")
+	}
+	if capacity < 1 {
+		return nil, fmt.Errorf("capacity should be greater than 0")
+	}
 	return &TreeNode{
 		parent:      parent,
 		depth:       depth,
@@ -150,7 +156,7 @@ func (n *TreeNode) ClearChildren() {
 // Returns:
 // - true if the node was divided, false otherwise.
 func (n *TreeNode) DivideIf() bool {
-	if n.depth >= n.maxDepth {
+	if n.depth >= n.maxDepth-1 {
 		// Maximum depth reached.
 		return false
 	}
@@ -229,15 +235,19 @@ func (n *TreeNode) MergeIf() bool {
 		return false
 	}
 	// Merge the node with its children
-	for i := 0; i < n.children.ChildrenCount(); i++ {
-		child := n.children.GetChild(i)
+	add := make([]siface.ISpatial, 0)
+	for i := 0; i < n.parent.children.ChildrenCount(); i++ {
+		child := n.parent.children.GetChild(i)
 		for e := child.GetEntityList().Front(); e != nil; e = e.Next() {
 			spatial := e.Value.(siface.ISpatial)
-			n.Add(spatial)
+			add = append(add, spatial)
 		}
 		child.Clear()
 	}
-	n.ClearChildren()
+	n.parent.ClearChildren()
+	for _, spatial := range add {
+		n.parent.Add(spatial)
+	}
 	return true
 }
 
