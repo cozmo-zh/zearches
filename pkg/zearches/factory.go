@@ -2,9 +2,11 @@
 package zearches
 
 import (
+	"github.com/cozmo-zh/zearches/consts"
 	"github.com/cozmo-zh/zearches/internal/pkg/tree"
 	"github.com/cozmo-zh/zearches/internal/pkg/tree/octree"
 	"github.com/cozmo-zh/zearches/internal/pkg/tree/quadtree"
+	"github.com/cozmo-zh/zearches/internal/pkg/tree/rtree"
 	"github.com/cozmo-zh/zearches/pkg/bounds"
 	"github.com/cozmo-zh/zearches/pkg/geo"
 	"github.com/cozmo-zh/zearches/pkg/siface"
@@ -93,4 +95,12 @@ func CreateQuadtree(bound bounds.Bound, maxDepth, capacity int, opt ...Option) (
 	} else {
 		return nil, err
 	}
+}
+
+// CreateRTree creates a new RTree with the specified parameters.
+// Parameters:
+// - dim: the number of dimensions of the tree.
+// - min/max specify the minimum/maximum branching factors.
+func CreateRTree(dim consts.Dim, min, max int) siface.ISearch {
+	return rtree.NewRTree(dim, min, max)
 }

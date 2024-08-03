@@ -46,3 +46,8 @@ func (v Vec3Int) Z() int32 {
 func (v Vec3Int) ToFloat32() []float32 {
 	return []float32{float32(v[0]), float32(v[1]), float32(v[2])}
 }
+
+// ToFloat64 converts the vector to a float64 slice.
+func (v Vec3Int) ToFloat64() []float64 {
+	return []float64{float64(v[0]), float64(v[1]), float64(v[2])}
+}
