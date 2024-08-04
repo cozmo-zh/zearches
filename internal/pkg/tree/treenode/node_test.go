@@ -161,3 +161,45 @@ func TestFindEntitiesReturnsEntitiesWithinRadius(t *testing.T) {
 	assert.NotContains(t, entities, spatial2)
 	assert.Contains(t, entities, spatial3)
 }
+
+func TestTreeNode_Range(t *testing.T) {
+	maxDepth := 2
+	capacity := 1
+	b := bounds.NewBound(geo.NewVec3Int(0, 0, 0), geo.NewVec3Int(10, 10, 10))
+	node, _ := NewTreeNode(consts.Dim3, nil, b, 0, maxDepth, capacity)
+
+	spatial1 := mocks.CreateMockSpatial(1, 4, 4, 4)
+	spatial2 := mocks.CreateMockSpatial(2, 8, 8, 8)
+	spatial3 := mocks.CreateMockSpatial(3, 5, 5, 5)
+	node.Add(spatial1)
+	node.Add(spatial2)
+	node.Add(spatial3)
+
+	entities := make([]siface.ISpatial, 0)
+	nodes := make([]*TreeNode, 0)
+	node.Range(func(n *TreeNode) bool {
+		nodes = append(nodes, n)
+		n.RangeEntities(
+			func(s siface.ISpatial) bool {
+				entities = append(entities, s)
+				return true
+			},
+		)
+		return true
+	})
+	assert.Len(t, nodes, 9)
+	assert.Equal(t, nodes[0], node)
+	assert.Equal(t, nodes[0].depth, 0)
+	assert.Equal(t, nodes[1].depth, 1)
+	assert.Equal(t, nodes[2].depth, 1)
+	assert.Equal(t, nodes[3].depth, 1)
+	assert.Equal(t, nodes[4].depth, 1)
+	assert.Equal(t, nodes[5].depth, 1)
+	assert.Equal(t, nodes[6].depth, 1)
+	assert.Equal(t, nodes[7].depth, 1)
+	assert.Equal(t, nodes[8].depth, 1)
+	assert.Contains(t, entities, spatial1)
+	assert.Contains(t, entities, spatial2)
+	assert.Contains(t, entities, spatial3)
+
+}

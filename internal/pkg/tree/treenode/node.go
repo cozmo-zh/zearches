@@ -325,3 +325,27 @@ func (n *TreeNode) Size() int {
 func (n *TreeNode) Children() IChildren {
 	return n.children
 }
+
+// Range .
+func (n *TreeNode) Range(f func(n *TreeNode) bool) {
+	if !f(n) {
+		return
+	}
+	if !n.IsLeaf() {
+		for i := 0; i < n.children.ChildrenCount(); i++ {
+			child := n.children.GetChild(i)
+			if child != nil {
+				child.Range(f)
+			}
+		}
+	}
+}
+
+// RangeEntities ranges the entities in the node.
+func (n *TreeNode) RangeEntities(f func(entity siface.ISpatial) bool) {
+	for e := n.entityList.Front(); e != nil; e = e.Next() {
+		if !f(e.Value.(siface.ISpatial)) {
+			return
+		}
+	}
+}
