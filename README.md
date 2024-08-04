@@ -3,7 +3,7 @@
 [![Go Reference](https://pkg.go.dev/badge/github.com/cozmo-zh/zearches.svg)](https://pkg.go.dev/github.com/cozmo-zh/zearches)
 [![Tests](https://github.com/cozmo-zh/zearches/actions/workflows/tests.yaml/badge.svg)](https://github.com/cozmo-zh/zearches/actions/workflows/tests.yaml)
 
-Zearches is a simple spatial segmentation/search toolkit that includes Octree, Quadtree, Rtree, and Grid-Based. It can be used to implement AOI, such as vision management in game projects, and also provides simple intersection detection
+Zearches is a simple spatial segmentation/search toolkit that includes Octree, Quadtree, Rtree. It can be used to implement AOI, such as vision management in game projects, and also provides simple intersection detection
 
 ## Status
 
