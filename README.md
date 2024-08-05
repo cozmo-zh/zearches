@@ -73,7 +73,7 @@ if you want to visualize the octree, you can use the following command to genera
 
 ### generate image file
 ```bash
-dot -Tjpg -o octree.png octree.dot
+dot -Tjpg -o quadtree.jpg quadtree.dot
 ```
 
 ![quadtree](draws/quadtree.jpg)
