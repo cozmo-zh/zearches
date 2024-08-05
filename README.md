@@ -26,7 +26,6 @@ go get -u github.com/cozmo-zh/zearches
 ```
 
 ## Usage
-
 ```go
 func main() {
     // create an octree
@@ -56,3 +55,28 @@ func main() {
     qtree.Remove(999)
 }
 ```
+
+## Visualization
+```go
+func main() {
+    // create an octree
+    otree, _ := zearches.CreateQuadtree(
+        bounds.NewBound(
+            //...                   
+            zearches.WithDrawPath("${workspace}/dot"), // path to save dot file, optional, default is empty
+    )
+		
+   // ...
+   octree.ToDot() // it will generate a dot file in the path you specified
+```
+if you want to visualize the octree, you can use the following command to generate the dot file, then generate the image file by using the graphviz tool
+### install graphviz
+```bash
+brew install graphviz
+```
+### generate image file
+```bash
+dot -Tjpg -o octree.png octree.dot
+```
+
+![quadtree](draws/quadtree.jpg)
