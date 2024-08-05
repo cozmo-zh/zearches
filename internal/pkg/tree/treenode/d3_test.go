@@ -3,6 +3,7 @@ package treenode
 
 import (
 	"github.com/cozmo-zh/zearches/consts"
+	"github.com/cozmo-zh/zearches/internal/pkg/tree/mocks"
 	"github.com/cozmo-zh/zearches/pkg/bounds"
 	"github.com/cozmo-zh/zearches/pkg/geo"
 	"github.com/stretchr/testify/assert"
@@ -11,7 +12,7 @@ import (
 
 func TestDivideCreatesEightChildren(t *testing.T) {
 	parentBound := bounds.NewBound(geo.NewVec3Int(0, 0, 0), geo.NewVec3Int(10, 10, 10))
-	parent, _ := NewTreeNode(consts.Dim3, nil, parentBound, 0, 4, 10)
+	parent, _ := NewTreeNode(consts.Dim3, nil, parentBound, 0, 0, 4, 10)
 	d3 := NewD3()
 	d3.Divide(parent, 1)
 
@@ -28,7 +29,7 @@ func TestDivideCreatesEightChildren(t *testing.T) {
 
 func TestDivideCorrectlySetsBoundsForD3(t *testing.T) {
 	parentBound := bounds.NewBound(geo.NewVec3Int(0, 0, 0), geo.NewVec3Int(10, 10, 10))
-	parent, _ := NewTreeNode(consts.Dim3, nil, parentBound, 0, 4, 10)
+	parent, _ := NewTreeNode(consts.Dim3, nil, parentBound, 0, 0, 4, 10)
 	d3 := NewD3()
 	d3.Divide(parent, 1)
 
@@ -54,7 +55,7 @@ func TestDivideCorrectlySetsBoundsForD3(t *testing.T) {
 func TestClearRemovesAllChildrenForD3(t *testing.T) {
 	d3 := NewD3()
 	parentBound := bounds.NewBound(geo.NewVec3Int(0, 0, 0), geo.NewVec3Int(10, 10, 10))
-	parent, _ := NewTreeNode(consts.Dim3, nil, parentBound, 0, 4, 10)
+	parent, _ := NewTreeNode(consts.Dim3, nil, parentBound, 0, 0, 4, 10)
 	d3.Divide(parent, 1)
 
 	d3.Clear()
@@ -67,4 +68,27 @@ func TestClearRemovesAllChildrenForD3(t *testing.T) {
 	assert.Nil(t, d3.GetChild(5))
 	assert.Nil(t, d3.GetChild(6))
 	assert.Nil(t, d3.GetChild(7))
+}
+
+func TestD3_Contains(t *testing.T) {
+	d3 := NewD3()
+	parentBound := bounds.NewBound(geo.NewVec3Int(0, 0, 0), geo.NewVec3Int(10, 10, 10))
+	parent, _ := NewTreeNode(consts.Dim3, nil, parentBound, 0, 0, 4, 10)
+	d3.Divide(parent, 1)
+	flag := d3.Contains(d3.GetChild(0), mocks.CreateMockSpatial(1, 1, 1, 1))
+	assert.True(t, flag)
+	assert.False(t, d3.Contains(d3.GetChild(0), mocks.CreateMockSpatial(2, 6, 6, 6)))
+	assert.True(t, d3.Contains(d3.GetChild(0), mocks.CreateMockSpatial(3, 1, 5, 1)))
+	assert.False(t, d3.Contains(d3.GetChild(0), mocks.CreateMockSpatial(3, 1, 6, 1)))
+}
+
+func TestD3_Intersects(t *testing.T) {
+	d3 := NewD3()
+	parentBound := bounds.NewBound(geo.NewVec3Int(0, 0, 0), geo.NewVec3Int(10, 10, 10))
+	parent, _ := NewTreeNode(consts.Dim3, nil, parentBound, 0, 0, 4, 10)
+	d3.Divide(parent, 1)
+	flag := d3.Intersects(d3.GetChild(0), bounds.NewBound(geo.NewVec3Int(0, 0, 0), geo.NewVec3Int(5, 5, 5)))
+	assert.True(t, flag)
+	flag = d3.Intersects(d3.GetChild(0), bounds.NewBound(geo.NewVec3Int(6, 6, 6), geo.NewVec3Int(10, 10, 10)))
+	assert.False(t, flag)
 }

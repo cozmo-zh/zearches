@@ -9,4 +9,6 @@ type ISearch interface {
 	Remove(entityId int64) bool
 	// GetSurroundingEntities finds entities within a certain radius of a center point.
 	GetSurroundingEntities(center []float32, radius float32, filters ...func(entity ISpatial) bool) []ISpatial
+	// ToDot generates a dot file for the search tree.
+	ToDot() error
 }

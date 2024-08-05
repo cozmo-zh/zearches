@@ -2,19 +2,21 @@
 package quadtree
 
 import (
+	"fmt"
 	"github.com/cozmo-zh/zearches/consts"
 	"github.com/cozmo-zh/zearches/internal/pkg/tree"
+	"github.com/cozmo-zh/zearches/internal/pkg/tree/option"
 	"github.com/cozmo-zh/zearches/internal/pkg/tree/treenode"
 	"github.com/cozmo-zh/zearches/pkg/bounds"
-	"github.com/cozmo-zh/zearches/pkg/geo"
 	"github.com/cozmo-zh/zearches/pkg/siface"
+	"os"
+	"path"
 )
 
 // QuadTree represents a quadtree data structure.
 type QuadTree struct {
-	root    *treenode.TreeNode            // The root node of the quadtree.
-	scale   func(v []float32) geo.Vec3Int // Function to scale float32 slice to geo.Vec3Int.
-	mergeIf bool                          // Flag to determine if nodes should be merged when removing an entity.
+	root   *treenode.TreeNode // The root node of the quadtree.
+	option *option.OptionalSettings
 }
 
 // NewQuadtree creates a new Octree.
@@ -23,20 +25,16 @@ type QuadTree struct {
 // - maxDepth: the maximum depth of the tree.
 // - capacity: the maximum number of entities that a node can hold.
 // - optional: variadic optional parameters to configure the octree.
-func NewQuadtree(bound bounds.Bound, maxDepth int, capacity int, optional ...tree.Optional) (*QuadTree, error) {
-	if root, err := treenode.NewTreeNode(consts.Dim3, nil, bound, 0, maxDepth, capacity); err != nil {
+func NewQuadtree(bound bounds.Bound, maxDepth int, capacity int, optional ...option.Optional) (*QuadTree, error) {
+	if root, err := treenode.NewTreeNode(consts.Dim2, nil, bound, 0, 0, maxDepth, capacity); err != nil {
 		return nil, err
 	} else {
 		o := &QuadTree{
-			root: root,
+			root:   root,
+			option: option.OptionalDefault(),
 		}
 		for _, opt := range optional {
-			opt(o)
-		}
-		if o.scale == nil {
-			o.scale = func(v []float32) geo.Vec3Int {
-				return geo.NewVec3Int(int32(v[0]), int32(v[1]), int32(v[2]))
-			}
+			opt(o.option)
 		}
 		return o, nil
 	}
@@ -55,7 +53,7 @@ func (q *QuadTree) Add(entity siface.ISpatial) bool {
 // - entityId: the ID of the entity to be removed.
 // Returns true if the entity was removed successfully, false otherwise.
 func (q *QuadTree) Remove(entityId int64) bool {
-	return q.root.Remove(entityId, q.mergeIf)
+	return q.root.Remove(entityId, q.option.MergeIf())
 }
 
 // GetSurroundingEntities finds entities within a certain radius of a center point.
@@ -65,21 +63,19 @@ func (q *QuadTree) Remove(entityId int64) bool {
 // - filters: optional filters to apply to the entities.
 // Returns a slice of spatial entities within the specified radius.
 func (q *QuadTree) GetSurroundingEntities(center []float32, radius float32, filters ...func(entity siface.ISpatial) bool) []siface.ISpatial {
-	return q.root.FindEntities(q.scale(center), radius, filters...)
+	return q.root.FindEntities(q.option.ScaleFunc(center), radius, filters...)
 }
 
-// SetScale sets a custom scale function for the QuadTree.
-// The scale function converts a float32 slice to a geo.Vec3Int.
-// Parameters:
-// - f: the custom scale function.
-func (q *QuadTree) SetScale(f func(v []float32) geo.Vec3Int) {
-	q.scale = f
-}
-
-// SetMergeIf sets the mergeIf field of the QuadTree.
-// If you want to merge the node when removing an entity, you can set merge to true.
-// Parameters:
-// - merge: the flag to determine if nodes should be merged when removing an entity.
-func (q *QuadTree) SetMergeIf(merge bool) {
-	q.mergeIf = merge
+func (q *QuadTree) ToDot() error {
+	const fileName = "quadtree.dot"
+	if q.option.DrawPath() == "" {
+		return fmt.Errorf("draw path not set")
+	}
+	// 准备写文件
+	if file, err := os.OpenFile(path.Join(q.option.DrawPath(), fileName), os.O_CREATE|os.O_WRONLY, 0644); err != nil {
+		return err
+	} else {
+		defer file.Close()
+		return tree.ToDot(tree.GetTemplate(), q.root, file)
+	}
 }

@@ -1,0 +1,13 @@
+digraph {
+    rankdir = "LR";
+    dpi = 300;
+    {{ range .Nodes }}
+    {{ .Name }} [label="{{ .Label }}", shape="box"]
+    {{ end }}
+    {{ range .Entities }}
+    {{ .Name }} [label="{{ .Label }}", shape="point"]
+    {{ end }}
+    {{ range .Edges }}
+    {{ .Parent.Name }} -> {{ .Child.Name }}
+    {{ end }}
+}

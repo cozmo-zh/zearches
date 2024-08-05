@@ -2,6 +2,7 @@
 package rtree
 
 import (
+	"fmt"
 	"github.com/cozmo-zh/zearches/consts"
 	"github.com/cozmo-zh/zearches/pkg/siface"
 	"github.com/dhconnelly/rtreego"
@@ -14,7 +15,7 @@ type RTree struct {
 }
 
 // NewRTree .
-func NewRTree(dim consts.Dim, min, max int) siface.ISearch {
+func NewRTree(dim consts.Dim, min, max int) *RTree {
 	return &RTree{
 		origin:   rtreego.NewTree(int(dim), min, max),
 		entities: make(map[int64]*REntity),
@@ -67,4 +68,8 @@ func (r *RTree) GetSurroundingEntities(center []float32, radius float32, filters
 		}
 	}
 	return ret
+}
+
+func (r *RTree) ToDot() error {
+	return fmt.Errorf("rtree not support draw")
 }
