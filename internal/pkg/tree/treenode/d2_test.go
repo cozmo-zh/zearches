@@ -3,6 +3,7 @@ package treenode
 
 import (
 	"github.com/cozmo-zh/zearches/consts"
+	"github.com/cozmo-zh/zearches/internal/pkg/tree/mocks"
 	"github.com/cozmo-zh/zearches/pkg/bounds"
 	"github.com/cozmo-zh/zearches/pkg/geo"
 	"github.com/stretchr/testify/assert"
@@ -11,7 +12,7 @@ import (
 
 func TestDivideCreatesFourChildren(t *testing.T) {
 	parentBound := bounds.NewBound(geo.NewVec3Int(0, 0, 0), geo.NewVec3Int(10, 0, 10))
-	parent, _ := NewTreeNode(consts.Dim2, nil, parentBound, 0, 4, 10)
+	parent, _ := NewTreeNode(consts.Dim2, nil, parentBound, 0, 0, 4, 10)
 	d2 := NewD2()
 	d2.Divide(parent, 1)
 
@@ -24,7 +25,7 @@ func TestDivideCreatesFourChildren(t *testing.T) {
 
 func TestDivideCorrectlySetsBounds(t *testing.T) {
 	parentBound := bounds.NewBound(geo.NewVec3Int(0, 0, 0), geo.NewVec3Int(10, 0, 10))
-	parent, _ := NewTreeNode(consts.Dim2, nil, parentBound, 0, 4, 10)
+	parent, _ := NewTreeNode(consts.Dim2, nil, parentBound, 0, 0, 4, 10)
 	d2 := NewD2()
 	d2.Divide(parent, 1)
 
@@ -46,7 +47,7 @@ func TestDivideCorrectlySetsBounds(t *testing.T) {
 func TestClearRemovesAllChildren(t *testing.T) {
 	d2 := NewD2()
 	parentBound := bounds.NewBound(geo.NewVec3Int(0, 0, 0), geo.NewVec3Int(10, 0, 10))
-	parent, _ := NewTreeNode(consts.Dim2, nil, parentBound, 0, 4, 10)
+	parent, _ := NewTreeNode(consts.Dim2, nil, parentBound, 0, 0, 4, 10)
 	d2.Divide(parent, 1)
 
 	d2.Clear()
@@ -55,4 +56,25 @@ func TestClearRemovesAllChildren(t *testing.T) {
 	assert.Nil(t, d2.GetChild(1))
 	assert.Nil(t, d2.GetChild(2))
 	assert.Nil(t, d2.GetChild(3))
+}
+
+func TestD2_Contains(t *testing.T) {
+	d2 := NewD2()
+	parentBound := bounds.NewBound(geo.NewVec3Int(0, 0, 0), geo.NewVec3Int(10, 0, 10))
+	parent, _ := NewTreeNode(consts.Dim2, nil, parentBound, 0, 0, 4, 10)
+	d2.Divide(parent, 1)
+	flag := d2.Contains(d2.GetChild(0), mocks.CreateMockSpatial(1, 1, 0, 1))
+	assert.True(t, flag)
+	assert.False(t, d2.Contains(d2.GetChild(0), mocks.CreateMockSpatial(2, 6, 0, 6)))
+	assert.True(t, d2.Contains(d2.GetChild(0), mocks.CreateMockSpatial(3, 1, 10, 1))) // ignore y
+}
+
+func TestD2_Intersects(t *testing.T) {
+	d2 := NewD2()
+	parentBound := bounds.NewBound(geo.NewVec3Int(0, 0, 0), geo.NewVec3Int(10, 0, 10))
+	parent, _ := NewTreeNode(consts.Dim2, nil, parentBound, 0, 0, 4, 10)
+	d2.Divide(parent, 1)
+	flag := d2.Intersects(d2.GetChild(0), bounds.NewBound(geo.NewVec3Int(1, 0, 1), geo.NewVec3Int(3, 0, 3)))
+	assert.True(t, flag)
+	assert.False(t, d2.Intersects(d2.GetChild(0), bounds.NewBound(geo.NewVec3Int(6, 0, 6), geo.NewVec3Int(8, 0, 8))))
 }

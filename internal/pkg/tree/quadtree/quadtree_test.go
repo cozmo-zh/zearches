@@ -12,12 +12,17 @@ import (
 
 func TestQuadTree_Add(t *testing.T) {
 	bound := bounds.NewBound(geo.NewVec3Int(0, 0, 0), geo.NewVec3Int(100, 100, 100))
-	quad, _ := NewQuadtree(bound, 1, 1)
+	quad, _ := NewQuadtree(bound, 2, 1)
 	entity1 := mocks.CreateMockSpatial(1, 10, 10, 10)
+
 	added := quad.Add(entity1)
 	assert.True(t, added)
 	ret := quad.GetSurroundingEntities([]float32{10, 10, 10}, 1)
 	assert.Equal(t, entity1, ret[0])
+	entity2 := mocks.CreateMockSpatial(2, 15, 15, 15)
+	quad.Add(entity2)
+	ret = quad.GetSurroundingEntities([]float32{10, 10, 10}, 10)
+	assert.Len(t, ret, 2)
 }
 
 func TestQuadTree_Remove(t *testing.T) {
@@ -46,5 +51,4 @@ func TestQuadTree_GetSurroundingEntities(t *testing.T) {
 	entities = quad.GetSurroundingEntities([]float32{10, 10, 10}, 10, filter)
 	assert.Len(t, entities, 1)
 	assert.Equal(t, entity1, entities[0])
-
 }

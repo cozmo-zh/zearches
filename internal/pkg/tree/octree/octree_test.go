@@ -1,8 +1,8 @@
 package octree
 
 import (
-	"github.com/cozmo-zh/zearches/internal/pkg/tree"
 	"github.com/cozmo-zh/zearches/internal/pkg/tree/mocks"
+	"github.com/cozmo-zh/zearches/internal/pkg/tree/option"
 	"testing"
 
 	"github.com/cozmo-zh/zearches/pkg/bounds"
@@ -16,15 +16,15 @@ func TestOctree_creation(t *testing.T) {
 		bound,
 		1,
 		1,
-		tree.WithMergeIf(false),
-		tree.WithScale(func(v []float32) geo.Vec3Int {
+		option.WithMergeIf(false),
+		option.WithScale(func(v []float32) geo.Vec3Int {
 			return geo.NewVec3Int(int32(v[0])+1, int32(v[1])+1, int32(v[2])+1)
 		},
 		))
 	assert.Nil(t, err)
 	assert.NotNil(t, oct)
-	assert.False(t, oct.mergeIf)
-	assert.Equal(t, oct.scale([]float32{1.0, 2.0, 3.0}), geo.NewVec3Int(2, 3, 4))
+	assert.False(t, oct.option.MergeIf())
+	assert.Equal(t, oct.option.ScaleFunc([]float32{1.0, 2.0, 3.0}), geo.NewVec3Int(2, 3, 4))
 }
 
 func TestOctree_createFail(t *testing.T) {

@@ -3,8 +3,8 @@ package zearches
 
 import (
 	"github.com/cozmo-zh/zearches/consts"
-	"github.com/cozmo-zh/zearches/internal/pkg/tree"
 	"github.com/cozmo-zh/zearches/internal/pkg/tree/octree"
+	"github.com/cozmo-zh/zearches/internal/pkg/tree/option"
 	"github.com/cozmo-zh/zearches/internal/pkg/tree/quadtree"
 	"github.com/cozmo-zh/zearches/internal/pkg/tree/rtree"
 	"github.com/cozmo-zh/zearches/pkg/bounds"
@@ -16,6 +16,7 @@ import (
 type OptionalSettings struct {
 	MergeIf   bool                          // Flag to determine if nodes should be merged when removing an entity.
 	ScaleFunc func(v []float32) geo.Vec3Int // Function to scale float32 slice to geo.Vec3Int.
+	path      string
 }
 
 // Option is a function type used to configure OptionalSettings.
@@ -39,6 +40,12 @@ func WithMergeIf(merge bool) Option {
 	}
 }
 
+func WithDrawPath(path string) Option {
+	return func(s *OptionalSettings) {
+		s.path = path
+	}
+}
+
 // CreateOctree creates a new Octree with the specified parameters.
 // Parameters:
 // - bound: the spatial boundaries of the tree.
@@ -59,8 +66,9 @@ func CreateOctree(bound bounds.Bound, maxDepth, capacity int, opt ...Option) (si
 		bound,
 		maxDepth,
 		capacity,
-		tree.WithMergeIf(s.MergeIf),
-		tree.WithScale(s.ScaleFunc),
+		option.WithMergeIf(s.MergeIf),
+		option.WithScale(s.ScaleFunc),
+		option.WithDrawPath(s.path),
 	); err == nil {
 		return ot, nil
 	} else {
@@ -88,8 +96,9 @@ func CreateQuadtree(bound bounds.Bound, maxDepth, capacity int, opt ...Option) (
 		bound,
 		maxDepth,
 		capacity,
-		tree.WithMergeIf(s.MergeIf),
-		tree.WithScale(s.ScaleFunc),
+		option.WithMergeIf(s.MergeIf),
+		option.WithScale(s.ScaleFunc),
+		option.WithDrawPath(s.path),
 	); err == nil {
 		return qt, nil
 	} else {

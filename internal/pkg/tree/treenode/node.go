@@ -15,14 +15,15 @@ import (
 //
 // Not thread-safe, only works in a single thread(goroutine).
 type TreeNode struct {
-	depth       int                     // Depth of the node in the tree.
-	maxDepth    int                     // Maximum depth of the tree.
-	capacity    int                     // Maximum number of entities the node can hold.
+	depth       int // Depth of the node in the tree.
+	maxDepth    int // Maximum depth of the tree.
+	capacity    int // Maximum number of entities the node can hold.
+	index       int
 	bound       bounds.Bound            // Spatial boundaries of the node.
 	entityList  *list.List              // List of entities in the node.
 	entityIndex map[int64]*list.Element // Map of entity IDs to their list elements.
 	parent      *TreeNode               // Parent node.
-	children    IChildren
+	children    IDimensionNode
 }
 
 // NewTreeNode creates a new tree node.
@@ -34,8 +35,8 @@ type TreeNode struct {
 //
 // Returns:
 // - A pointer to the newly created TreeNode.
-func NewTreeNode(dim consts.Dim, parent *TreeNode, bound bounds.Bound, depth, maxDepth, capacity int) (*TreeNode, error) {
-	var children IChildren
+func NewTreeNode(dim consts.Dim, parent *TreeNode, bound bounds.Bound, index, depth, maxDepth, capacity int) (*TreeNode, error) {
+	var children IDimensionNode
 	switch dim {
 	case consts.Dim2:
 		children = NewD2()
@@ -59,6 +60,7 @@ func NewTreeNode(dim consts.Dim, parent *TreeNode, bound bounds.Bound, depth, ma
 		entityList:  list.New(),
 		entityIndex: make(map[int64]*list.Element),
 		children:    children,
+		index:       index,
 	}, nil
 }
 
@@ -188,22 +190,12 @@ func (n *TreeNode) DivideIf() bool {
 // Returns:
 // - true if the entity is within the bounds, false otherwise.
 func (n *TreeNode) Contains(spatial siface.ISpatial) bool {
-	if n.bound.Min.X() <= spatial.GetLocation().X() && spatial.GetLocation().X() <= n.bound.Max.X() &&
-		n.bound.Min.Y() <= spatial.GetLocation().Y() && spatial.GetLocation().Y() <= n.bound.Max.Y() &&
-		n.bound.Min.Z() <= spatial.GetLocation().Z() && spatial.GetLocation().Z() <= n.bound.Max.Z() {
-		return true
-	}
-	return false
+	return n.children.Contains(n, spatial)
 }
 
 // Intersects checks if the bound intersects with the node.
 func (n *TreeNode) Intersects(bound bounds.Bound) bool {
-	if n.bound.Min.X() <= bound.Max.X() && bound.Min.X() <= n.bound.Max.X() &&
-		n.bound.Min.Y() <= bound.Max.Y() && bound.Min.Y() <= n.bound.Max.Y() &&
-		n.bound.Min.Z() <= bound.Max.Z() && bound.Min.Z() <= n.bound.Max.Z() {
-		return true
-	}
-	return false
+	return n.children.Intersects(n, bound)
 }
 
 // IsLeaf checks if the node is a leaf node.
@@ -322,8 +314,16 @@ func (n *TreeNode) Size() int {
 }
 
 // Children returns the children of the node.
-func (n *TreeNode) Children() IChildren {
+func (n *TreeNode) Children() IDimensionNode {
 	return n.children
+}
+
+func (n *TreeNode) Depth() int {
+	return n.depth
+}
+
+func (n *TreeNode) Index() int {
+	return n.index
 }
 
 // Range .
