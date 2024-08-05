@@ -62,13 +62,12 @@ func main() {
 func main() {
     // create an octree
     otree, _ := zearches.CreateQuadtree(
-        bounds.NewBound(
             //...                   
             zearches.WithDrawPath("${workspace}/dot"), // path to save dot file, optional, default is empty
     )
 		
    // ...
-   octree.ToDot() // it will generate a dot file in the path you specified
+   err := octree.ToDot() // it will generate a dot file in the path you specified
 ```
 if you want to visualize the octree, you can use the following command to generate the dot file, then generate the image file by using the graphviz tool
 ### install graphviz
