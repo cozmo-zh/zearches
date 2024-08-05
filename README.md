@@ -69,9 +69,8 @@ func main() {
 ```
 if you want to visualize the octree, you can use the following command to generate the dot file, then generate the image file by using the graphviz tool
 ### install graphviz
-```bash
-brew install graphviz
-```
+[download](https://graphviz.org/download/)
+
 ### generate image file
 ```bash
 dot -Tjpg -o octree.png octree.dot
