@@ -67,7 +67,7 @@ func main() {
    // ...
    err := quadtree.ToDot() // it will generate a dot file in the path you specified
 ```
-if you want to visualize the octree, you can use the following command to generate the dot file, then generate the image file by using the graphviz tool
+if you want to visualize the tree(octree/quadtree), you can use the following command to generate the dot file, then generate the image file by using the graphviz tool
 ### install graphviz
 [download](https://graphviz.org/download/)
 
